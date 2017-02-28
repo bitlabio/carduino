@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+
+    * { 
+      margin: 0; padding: 0;
+      overflow: hidden;
+    }
+    
+    body { 
+      background-color: rgb(15,15,15); overflow: hidden;
+      color: rgb(255,255,255);
+      font-family: sans-serif;
+      padding: 15px;
+    }
+
+    #processing {outline: none; cursor: none;}
+
+    .gauge { box-sizing: border-box; margin: 5px; padding: 10px; min-width: 100px; min-height: 100px; background-color: rgb(0,0,0); float:left; border-radius: 5px; }
+
+  </style>
+  <script src="/lib/vectors.js"></script>
+  <script src="/lib/processing.min.js"></script>
+
+  <title>CarDuino</title>
+  </head>
+<body>
+
+<div class="gauge">CRANK ANGLE</div>
+<div class="gauge">RPM</div>
+<div class="gauge">TPS</div>
+<div class="gauge">SQUIRT</div>
+<div class="gauge">FUEL</div>
+<div class="gauge">OILPRESSURE</div>
+<div class="gauge">OILTEMP</div>
+<div class="gauge">KM/H</div>
+<div class="gauge">BOOST</div>
+
+</body>
+</html>

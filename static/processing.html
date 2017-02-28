@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+
+    * { 
+      margin: 0; padding: 0;
+      overflow: hidden;
+    }
+    
+    body { 
+      background-color: rgb(25,25,25); overflow: hidden;
+    }
+
+    #processing {outline: none; cursor: none;}
+
+  </style>
+  <script src="/lib/vectors.js"></script>
+  <script src="/lib/processing.min.js"></script>
+
+  <title>Game</title>
+  </head>
+<body>
+<canvas id="processing" ></canvas>
+<script>
+var canvas = document.getElementById("processing");
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
+
+var player = {
+  aimx:  0,
+  aimy:  0,
+  pos: {
+    x:  window.innerWidth/2,
+    y:  window.innerHeight/2,
+  },
+  velocity: {
+    x: 0,
+    y: 0
+  },
+  projectiles: [],
+  score: 0
+}
+
+var enemies = {
+  difficulty: 0.01,
+  list: []
+}
+
+enemies.create = function () {
+  var monster = {
+    pos: {
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+    },
+    size: 10,
+    life: 100,
+  }
+  enemies.list.push(monster)
+
+}
+
+enemies.update = function () {
+
+
+  if (Math.random() < enemies.difficulty) { enemies.create(); }
+  
+  
+  for (var monster in enemies.list) {
+    enemies.list[monster].size += 1;
+
+      //check for any projectiles hitting enemies.. by distance.
+      for (var projectile in player.projectiles) {
+        //get distance from monster to projectile.
+        var dx = enemies.list[monster].pos.x - player.projectiles[projectile].pos.x
+        var dy = enemies.list[monster].pos.y - player.projectiles[projectile].pos.y
+
+        var distance = Math.sqrt(dx*dx + dy*dy)
+        if (distance < enemies.list[monster].size) { 
+          enemies.list[monster].size -= (enemies.list[monster].size-distance); //damage per tick
+          enemies.list[monster].life -= 5; //damage per tick
+        }
+
+      }
+
+      //check if player is too close
+      var dx = enemies.list[monster].pos.x - player.pos.x
+      var dy = enemies.list[monster].pos.y - player.pos.y
+
+      var distance = Math.sqrt(dx*dx + dy*dy)
+      if (distance < enemies.list[monster].size) { 
+        enemies.list[monster].size -= (enemies.list[monster].size-distance); //damage per tick
+        enemies.list[monster].life -= 5; //damage per tick
+      }
+
+  }
+
+  //get rid of monsters with no life left
+  enemies.list = enemies.list.filter(function (monster) {
+    if (monster.life > 0) {
+      //enemy stays
+        return 1;
+    } else { 
+      //enemy gone
+      enemies.difficulty += 0.001
+      return 0;
+
+    }
+
+  })    
+  
+}
+
+player.shoot = function () {
+
+  var bullet = {
+    pos : {
+      x: player.pos.x,
+      y: player.pos.y
+    },
+    targetx: player.aimx,
+    targety: player.aimy,
+    directionx: player.aimx-player.pos.x,
+    directiony: player.aimy-player.pos.y,
+    time : 255,
+  }
+
+  player.projectiles.push(bullet)
+}
+
+player.update = function () {
+  //player position
+  player.pos.x += player.velocity.x
+  player.pos.y += player.velocity.y
+
+  //projectiles
+  for (var projectile in player.projectiles) {
+    player.projectiles[projectile].pos.x += player.projectiles[projectile].directionx/100
+    player.projectiles[projectile].pos.y += player.projectiles[projectile].directiony/100
+    player.projectiles[projectile].time -= 1;
+  }
+
+  //get rid of projectiles with time less than 0 left.
+  player.projectiles = player.projectiles.filter(function (projectile) {
+    return projectile.time > 0;
+  })
+
+}
+
+var processing = function (pr) 
+{
+  pr.setup = function() 
+  { 
+    window.pr = pr; //makes it available globally
+    pr.size( window.innerWidth, window.innerHeight ); 
+  } 
+
+  pr.draw = function() 
+  {   
+    //
+    pr.background(25, 25, 25)
+
+    //draw monsters
+    for (var monster in enemies.list) {
+      pr.noStroke();
+      var monstertodraw = enemies.list[monster]
+      pr.fill(monstertodraw.life*2.55,0,255 - monstertodraw.life*2.55,200)
+      //console.log(monstertodraw)
+      pr.ellipse(monstertodraw.pos.x, monstertodraw.pos.y, monstertodraw.size*2,monstertodraw.size*2)
+
+    }
+
+    //draw bullets    
+    for (var projectile in player.projectiles) {
+      var bullettodraw = player.projectiles[projectile]
+      pr.stroke(0,255,55,bullettodraw.time);
+      pr.line(bullettodraw.pos.x, bullettodraw.pos.y, bullettodraw.targetx, bullettodraw.targety)
+      pr.noStroke();
+      pr.fill(0,255,0,255);
+      pr.ellipse(bullettodraw.pos.x, bullettodraw.pos.y, 5,5)
+    }
+
+    //draw player
+    pr.stroke(255,125,0)
+    pr.line(player.pos.x, player.pos.y-10, player.pos.x, player.pos.y+10)
+    pr.line(player.pos.x-10, player.pos.y, player.pos.x+10, player.pos.y)
+
+    //draw player aim +
+    pr.stroke(255,255,0)
+    pr.line(player.aimx, player.aimy-10, player.aimx, player.aimy+10)
+    pr.line(player.aimx-10, player.aimy, player.aimx+10, player.aimy)
+
+    // done drawing, calculate for the next frame.
+    player.update();
+    enemies.update();
+  } //end draw
+  
+} //end processing
+
+var keydown = function (key) {
+  
+  if (key.keyCode == 87) {//W
+    player.velocity.y = -1;
+  }
+
+  if (key.keyCode == 68) {//D
+    player.velocity.x = 1;
+  }
+
+  if (key.keyCode == 83) {//S
+    player.velocity.y = 1;
+  }
+
+  if (key.keyCode == 65) {//A
+    player.velocity.x = -1;
+  }
+}
+
+var keyup = function (key) {
+  
+  if (key.keyCode == 87) {//W
+    player.velocity.y = 0;
+  }
+
+  if (key.keyCode == 68) {//D
+    player.velocity.x = 0;
+  }
+
+  if (key.keyCode == 83) {//S
+    player.velocity.y = 0;
+  }
+
+  if (key.keyCode == 65) {//A
+    player.velocity.x = 0;
+  }
+}
+
+var mousemove = function (mouse) {
+  player.aimy = mouse.y;
+  player.aimx = mouse.x;
+}
+
+var mousedown = function (data) {
+  player.shoot();
+}
+
+var resize = function () {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.pr.size( window.innerWidth, window.innerHeight ); 
+}
+
+document.addEventListener( 'keyup', keyup, false );
+document.addEventListener( 'keydown', keydown, false );
+document.addEventListener( 'mousemove', mousemove, false );
+document.addEventListener( 'mousedown', mousedown, false );
+window.addEventListener('resize', resize, false);
+
+
+var processingInstance = new Processing(canvas, processing); //THIS SHOULD BE AT THE END
+</script>
+</body>
+</html>
