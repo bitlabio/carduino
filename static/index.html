@@ -1,9 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/lib/jquery-3.1.1.min.js"></script>
 
-    * { 
+  <title>CarDuino</title>
+
+<script>  
+  
+   var socket = io.connect('http://localhost:3000');
+   socket.on('connect', function(data) {
+      socket.emit('join', 'Hello World from client');
+   });
+
+ socket.on('broad', function(data) {
+         console.log(data)
+   });
+
+   socket.on('messages', function(data) {
+                console.log(data);
+        });
+
+   socket.on('arduino', function(data) {
+                console.log(data);
+                $("#rpm").html(data.rpm)
+                $("#count").html(data.count)
+                $("#timedelta").html(data.timedelta)
+        });
+
+   $( document ).ready(function() {
+
+      //$("#rpm").html("100")
+
+        socket.on('arduino', function(data) {
+                console.log(data);
+                //$("#rpm").html(data.rpm)
+        });
+
+
+   });
+
+   //socket.emit('messages', message);
+</script>  
+
+<style>
+
+ * { 
       margin: 0; padding: 0;
       overflow: hidden;
     }
@@ -17,18 +59,18 @@
 
     #processing {outline: none; cursor: none;}
 
-    .gauge { box-sizing: border-box; margin: 5px; padding: 10px; min-width: 100px; min-height: 100px; background-color: rgb(0,0,0); float:left; border-radius: 5px; }
+    .gauge { box-sizing: border-box; margin: 5px; padding: 10px; min-width: 300px; min-height: 100px; background-color: rgb(0,0,0); float:left; border-radius: 5px; border: #333 solid 3px; }
 
-  </style>
-  <script src="/lib/vectors.js"></script>
-  <script src="/lib/processing.min.js"></script>
+  .gauge div { font-size: 30px; }
+</style>
 
-  <title>CarDuino</title>
   </head>
 <body>
 
-<div class="gauge">CRANK ANGLE</div>
-<div class="gauge">RPM</div>
+<div class="gauge">RPM<br>crank rotations per minute</br><div id="rpm"></div></div>
+<div class="gauge">COUNT <br>how many distributor clicks<br><div id="count"></div></div>
+<div class="gauge">TIMEDELTA <br>microseconds since last distributor click<br><div id="timedelta"></div></div>
+
 <div class="gauge">TPS</div>
 <div class="gauge">SQUIRT</div>
 <div class="gauge">FUEL</div>
