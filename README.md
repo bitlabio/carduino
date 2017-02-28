@@ -1,6 +1,10 @@
+# WARNING
+
+You are on your own. I am not responsible for death, injury or damages. You have been warned.       
+
 # carduino
 
-new arduino ECU, headsup display and dyno software    
+Arduino ECU, headsup display and dyno software for cars.     
 
 # ARDUINO WIRING
 
