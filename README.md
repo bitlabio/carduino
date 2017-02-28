@@ -13,7 +13,7 @@ usb    = to pc
 
 Install firmware from /firmware folder using arduino software. Please note serialport speed is set to 115200
 
-# PC SOFTWARE
+# WINDOWS/MAC/LINUX SOFTWARE
 
 Download and install nodejs from https://nodejs.org/en/    
 
