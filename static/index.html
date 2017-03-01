@@ -15,6 +15,8 @@
 var dataraw = {}
 var datarawready = false;
 
+var rpmdial = {}
+
 var style = {}
 style.bg = {r: 5, g: 6, b: 7}
 style.bgcol = 'rgb('+style.bg.r+','+style.bg.g+','+style.bg.b+')';
@@ -36,7 +38,10 @@ socket.on('arduino', function(data) {
   datarawready = true;
   dataraw = data
   console.log(data);
+  
   $("#rpm").html(data.rpm)
+  rpmdial.val(data.rpm);
+
   $("#count").html(data.count)
   $("#timedelta").html(data.timedelta)
 });
@@ -44,18 +49,31 @@ socket.on('arduino', function(data) {
 var rpm = 0;
 var rpmtoggle = 25;
 
+
+
 $( document ).ready(function() {
   var rpmdialelement = document.getElementById("rpmdial");
-  var rpmdial = new CarduinoUI.dial(rpmdialelement,style, 0, 6000)
+  rpmdial = new CarduinoUI.dial(rpmdialelement,style, 0, 6000)
 
 
 
   // UPDATE MONITOR
-  setInterval(function(){           
+  var lastcount = 0;
+
+  /*
+  setInterval(function(){       
+
     if (datarawready) { 
-      rpmdial.val(dataraw.rpm);
+      if (dataraw.count == lastcount) {
+        rpmdial.val(0);
+      } else {
+        rpmdial.val(dataraw.rpm);
+        lastcount = dataraw.count;
+      }
+      
+      //lastcount = dataraw.count;
     }
-  }, 10);
+  }, 10); */
 
 
 
@@ -91,6 +109,8 @@ $( document ).ready(function() {
   </head>
 <body>
 
+<div class="dial" style="width: 400px; height: 400px; background: #ff0;"><canvas id="rpmdial" style="width: 400px; height: 400px;"></canvas></div>
+
 <div class="gauge">RPM<br>crank rotations per minute</br><div id="rpm"></div></div>
 <div class="gauge">COUNT <br>how many distributor clicks<br><div id="count"></div></div>
 <div class="gauge">TIMEDELTA <br>microseconds since last distributor click<br><div id="timedelta"></div></div>
@@ -103,7 +123,7 @@ $( document ).ready(function() {
 <div class="gauge">KM/H</div>
 <div class="gauge">BOOST</div>
 
-<div class="dial" style="width: 400px; height: 400px; background: #ff0;"><canvas id="rpmdial" style="width: 400px; height: 400px;"></canvas></div>
+
 
 </body>
 </html>

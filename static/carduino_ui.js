@@ -10,6 +10,11 @@ CarduinoUI.dial = function (canvas, style, min, max) {
 	this.size = 400; //ALWAYS SQUARE.
 	this.min = min
 	this.max = max
+	this.smooth = 5; // how many readings to average
+	this.readings = []
+
+	//initialize
+	for (var a = 0; a < this.smooth; a++) { this.readings.push(0); } 
 
 	this.dialvector = new Vector({x:0,y:1,z:0,w:0}); //up. this points to where the dial is.
 	this.dialaxis = new Vector({x:0,y:0,z:1,w:0}); //out of screen. we rotate around this imaginary line
@@ -91,7 +96,7 @@ CarduinoUI.dial = function (canvas, style, min, max) {
 		var tempfirst = {}
 		for (var a in selfobj.dialshape) {
 			var tempvec = new Vector({x:selfobj.dialshape[a][0]*selfobj.size/400,y:selfobj.dialshape[a][1]*selfobj.size/400,z:0,w:0})
-			tempvec.rotate(selfobj.dialaxis, selfobj.value)
+			tempvec.rotate(selfobj.dialaxis, selfobj.value )
 			pr.vertex(tempvec.x+selfobj.size/2, tempvec.y+selfobj.size/2);	
 			if (a == 0) { tempfirst = new Vector(tempvec); }
 		}
@@ -145,6 +150,16 @@ CarduinoUI.dial = function (canvas, style, min, max) {
 }
 
 CarduinoUI.dial.prototype.val = function(value) {
+	this.readings.push(value);
+	this.readings.splice(0,1)
+	var avg = 0;
+	for (var a in this.readings) {
+		avg += this.readings[a];
+	}
+	avg /= this.readings.length;
+
 	console.log("updating dial value")
-	this.value = value/this.max;
+
+	//this.value = value/this.max*Math.PI*1.5;
+	this.value = avg/this.max*Math.PI*1.5;
 };

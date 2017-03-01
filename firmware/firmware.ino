@@ -19,11 +19,12 @@ unsigned long lasttime = 0;
 void loop() {
   // send the value of analog input 0:
   int voltage = analogRead(A0);
-  
+  unsigned long time= micros();
+  unsigned long timedelta = time - lasttime;
+    
   if (voltage+1 < lastv) { count++;
     //Serial.println(count); 
-    unsigned long time= micros();
-    unsigned long timedelta = time - lasttime;
+
 
     //Serial.print("timedelta microseconds:");
     //Serial.println(timedelta);
@@ -43,6 +44,23 @@ void loop() {
     lasttime = time;
     engine(count%4, 50); //rotation and spark duration
    } 
+  
+    if (timedelta > 100000) {
+      //oh oh nothing happening
+      double rpm = timedelta;
+      rpm = (1.0 / (rpm * 4.0 / 1000000.0)) * 60.0 ;      
+      Serial.print("{\"rpm\":");
+      Serial.print(rpm);
+      
+      Serial.print(",\"count\":");
+      Serial.print(count);    
+      
+      Serial.print(",\"timedelta\":");
+      Serial.print(timedelta);    
+      
+      Serial.println("}");
+    }
+   
   
   lastv = voltage;
 
