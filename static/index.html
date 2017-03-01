@@ -4,40 +4,64 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/lib/jquery-3.1.1.min.js"></script>
 
+  <script src="/lib/vectors.js"></script>
+  <script src="/lib/processing.min.js"></script>
+
+  <script src="/carduino_ui.js"></script>
+
   <title>CarDuino</title>
 
 <script>  
-  
-   var socket = io.connect('http://localhost:3000');
-   socket.on('connect', function(data) {
-      socket.emit('join', 'Hello World from client');
-   });
+var dataraw = {}
+var datarawready = false;
 
- socket.on('broad', function(data) {
-         console.log(data)
-   });
+var style = {}
+style.bg = {r: 5, g: 6, b: 7}
+style.bgcol = 'rgb('+style.bg.r+','+style.bg.g+','+style.bg.b+')';
 
-   socket.on('messages', function(data) {
-                console.log(data);
-        });
+var socket = io.connect('http://localhost:3000');
+  socket.on('connect', function(data) {
+  socket.emit('join', 'Hello World from client');
+});
 
-   socket.on('arduino', function(data) {
-                console.log(data);
-                $("#rpm").html(data.rpm)
-                $("#count").html(data.count)
-                $("#timedelta").html(data.timedelta)
-        });
+socket.on('broad', function(data) {
+  console.log(data)
+});
 
-   $( document ).ready(function() {
+socket.on('messages', function(data) {
+  console.log(data);
+});
 
-      //$("#rpm").html("100")
+socket.on('arduino', function(data) {
+  datarawready = true;
+  dataraw = data
+  console.log(data);
+  $("#rpm").html(data.rpm)
+  $("#count").html(data.count)
+  $("#timedelta").html(data.timedelta)
+});
 
-        socket.on('arduino', function(data) {
-                console.log(data);
-                //$("#rpm").html(data.rpm)
-        });
+var rpm = 0;
+var rpmtoggle = 25;
+
+$( document ).ready(function() {
+  var rpmdialelement = document.getElementById("rpmdial");
+  var rpmdial = new CarduinoUI.dial(rpmdialelement,style, 0, 6000)
 
 
+
+  // UPDATE MONITOR
+  setInterval(function(){           
+    if (datarawready) { 
+      rpmdial.val(dataraw.rpm);
+    }
+  }, 10);
+
+
+
+
+
+        $("body").css("background-color", style.bgcol)
    });
 
    //socket.emit('messages', message);
@@ -78,6 +102,8 @@
 <div class="gauge">OILTEMP</div>
 <div class="gauge">KM/H</div>
 <div class="gauge">BOOST</div>
+
+<div class="dial" style="width: 400px; height: 400px; background: #ff0;"><canvas id="rpmdial" style="width: 400px; height: 400px;"></canvas></div>
 
 </body>
 </html>
