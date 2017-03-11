@@ -22,7 +22,7 @@ void loop() {
   unsigned long time= micros();
   unsigned long timedelta = time - lasttime;
     
-  if (voltage+1 < lastv) { count++;
+  if ((voltage == 0) && (lastv > 0)) { count++;
     //Serial.println(count); 
 
 
@@ -42,7 +42,7 @@ void loop() {
     
     Serial.println("}");
     lasttime = time;
-    engine(count%4, 50); //rotation and spark duration
+    engine(count%4, 250); //rotation and spark duration
    } 
   
     if (timedelta > 100000) {
